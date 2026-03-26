@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.material)
+    implementation(libs.androidx.biometric)
     
     // Room
     implementation(libs.androidx.room.runtime)

@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -31,6 +31,8 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
+    
     var jenis by remember { mutableStateOf("Pengeluaran") }
     var nominal by remember { mutableStateOf("") }
     var keterangan by remember { mutableStateOf("") }
@@ -47,18 +49,36 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
         listOf("Gaji", "Bonus", "Investasi", "Hadiah", "Lainnya")
     }
 
+    val textColor = if (isDarkMode) White else Color(0xFF2D3436)
+    val cardBgColor = if (isDarkMode) CardBg else Color.White
+    val bgBrush = if (isDarkMode) {
+        Brush.verticalGradient(AddTransactionBackgroundGradient)
+    } else {
+        Brush.verticalGradient(listOf(Color(0xFFF0F2F5), Color(0xFFFFFFFF)))
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = Brush.verticalGradient(AddTransactionBackgroundGradient))
+            .background(brush = bgBrush)
     ) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Tambah Transaksi", color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold) },
+                    title = { 
+                        Text(
+                            "Tambah Transaksi", 
+                            style = TextStyle(
+                                brush = Brush.horizontalGradient(PurpleGradient),
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                letterSpacing = 0.5.sp
+                            )
+                        ) 
+                    },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = White)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = textColor)
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
@@ -73,12 +93,12 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                // Tipe Transaksi
+                // Tipe Transaksi (Switcher)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
-                        .background(CardBg.copy(alpha = 0.5f), RoundedCornerShape(25.dp))
+                        .background(if(isDarkMode) CardBg.copy(alpha = 0.5f) else Color.LightGray.copy(alpha = 0.3f), RoundedCornerShape(25.dp))
                         .padding(4.dp)
                 ) {
                     listOf("Pemasukan", "Pengeluaran").forEach { type ->
@@ -101,7 +121,7 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
                         ) {
                             Text(
                                 type,
-                                color = if (isSelected) White else TextGray,
+                                color = if (isSelected) White else (if(isDarkMode) TextGray else Color.Gray),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
                             )
@@ -111,21 +131,21 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
 
                 // Input Nominal
                 Column {
-                    Text("NOMINAL", color = PrimaryYellow, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    Text("NOMINAL", color = PrimaryPurple, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = nominal,
                         onValueChange = { if (it.all { char -> char.isDigit() }) nominal = it },
-                        prefix = { Text("Rp ", color = White, fontWeight = FontWeight.Bold) },
-                        textStyle = LocalTextStyle.current.copy(color = White, fontSize = 24.sp, fontWeight = FontWeight.Bold),
+                        prefix = { Text("Rp ", color = textColor, fontWeight = FontWeight.Bold) },
+                        textStyle = LocalTextStyle.current.copy(color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold),
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = White.copy(alpha = 0.1f),
-                            focusedBorderColor = PrimaryYellow,
-                            unfocusedContainerColor = CardBg.copy(alpha = 0.3f),
-                            focusedContainerColor = CardBg.copy(alpha = 0.5f),
-                            cursorColor = PrimaryYellow
+                            unfocusedBorderColor = textColor.copy(alpha = 0.1f),
+                            focusedBorderColor = PrimaryPurple,
+                            unfocusedContainerColor = cardBgColor.copy(alpha = 0.5f),
+                            focusedContainerColor = cardBgColor,
+                            cursorColor = PrimaryPurple
                         ),
                         shape = RoundedCornerShape(16.dp)
                     )
@@ -133,7 +153,7 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
 
                 // Pilih Kategori
                 Column {
-                    Text("KATEGORI", color = PrimaryYellow, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    Text("KATEGORI", color = PrimaryPurple, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     var expanded by remember { mutableStateOf(false) }
                     ExposedDropdownMenuBox(
@@ -147,23 +167,23 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             modifier = Modifier.fillMaxWidth().menuAnchor(),
                             colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = White.copy(alpha = 0.1f),
-                                focusedBorderColor = PrimaryYellow,
-                                unfocusedContainerColor = CardBg.copy(alpha = 0.3f),
-                                focusedContainerColor = CardBg.copy(alpha = 0.5f),
-                                unfocusedTextColor = White,
-                                focusedTextColor = White
+                                unfocusedBorderColor = textColor.copy(alpha = 0.1f),
+                                focusedBorderColor = PrimaryPurple,
+                                unfocusedContainerColor = cardBgColor.copy(alpha = 0.5f),
+                                focusedContainerColor = cardBgColor,
+                                unfocusedTextColor = textColor,
+                                focusedTextColor = textColor
                             ),
                             shape = RoundedCornerShape(16.dp)
                         )
                         ExposedDropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
-                            modifier = Modifier.background(CardBg)
+                            modifier = Modifier.background(cardBgColor)
                         ) {
                             categories.forEach { category ->
                                 DropdownMenuItem(
-                                    text = { Text(category, color = White) },
+                                    text = { Text(category, color = textColor) },
                                     onClick = {
                                         selectedCategory = category
                                         expanded = false
@@ -176,20 +196,20 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
 
                 // Keterangan
                 Column {
-                    Text("KETERANGAN", color = PrimaryYellow, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    Text("KETERANGAN", color = PrimaryPurple, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = keterangan,
                         onValueChange = { keterangan = it },
-                        placeholder = { Text("Contoh: Makan siang di kantor", color = TextGray.copy(alpha = 0.5f)) },
+                        placeholder = { Text("Contoh: Makan siang", color = if(isDarkMode) TextGray else Color.Gray) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = White.copy(alpha = 0.1f),
-                            focusedBorderColor = PrimaryYellow,
-                            unfocusedContainerColor = CardBg.copy(alpha = 0.3f),
-                            focusedContainerColor = CardBg.copy(alpha = 0.5f),
-                            unfocusedTextColor = White,
-                            focusedTextColor = White
+                            unfocusedBorderColor = textColor.copy(alpha = 0.1f),
+                            focusedBorderColor = PrimaryPurple,
+                            unfocusedContainerColor = cardBgColor.copy(alpha = 0.5f),
+                            focusedContainerColor = cardBgColor,
+                            unfocusedTextColor = textColor,
+                            focusedTextColor = textColor
                         ),
                         shape = RoundedCornerShape(16.dp)
                     )
@@ -197,7 +217,7 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
 
                 // Pilih Tanggal
                 Column {
-                    Text("TANGGAL", color = PrimaryYellow, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    Text("TANGGAL", color = PrimaryPurple, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Surface(
                         modifier = Modifier
@@ -205,6 +225,7 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
                             .clickable {
                                 DatePickerDialog(
                                     context,
+                                    if(isDarkMode) android.R.style.Theme_DeviceDefault_Dialog_Alert else android.R.style.Theme_DeviceDefault_Light_Dialog_Alert,
                                     { _, year, month, day ->
                                         calendar.set(year, month, day)
                                         selectedDate = calendar.timeInMillis
@@ -215,16 +236,16 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
                                 ).show()
                             },
                         shape = RoundedCornerShape(16.dp),
-                        color = CardBg.copy(alpha = 0.3f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, White.copy(alpha = 0.1f))
+                        color = cardBgColor.copy(alpha = 0.5f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, textColor.copy(alpha = 0.1f))
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(sdf.format(Date(selectedDate)), color = White, fontWeight = FontWeight.Medium)
-                            Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = PrimaryYellow)
+                            Text(sdf.format(Date(selectedDate)), color = textColor, fontWeight = FontWeight.Medium)
+                            Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = PrimaryPurple)
                         }
                     }
                 }
@@ -235,18 +256,11 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
                 Button(
                     onClick = {
                         val amount = nominal.toLongOrNull() ?: 0L
-                        if (amount <= 0) {
-                            Toast.makeText(context, "Masukkan nominal yang valid", Toast.LENGTH_SHORT).show()
-                            return@Button
+                        if (amount > 0 && keterangan.isNotBlank()) {
+                            viewModel.addTransaction(amount, "$selectedCategory: $keterangan", jenis, selectedDate)
+                            Toast.makeText(context, "Transaksi disimpan", Toast.LENGTH_SHORT).show()
+                            onBack()
                         }
-                        if (keterangan.isBlank()) {
-                            Toast.makeText(context, "Keterangan tidak boleh kosong", Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
-                        
-                        viewModel.addTransaction(amount, "$selectedCategory: $keterangan", jenis, selectedDate)
-                        Toast.makeText(context, "Transaksi berhasil disimpan", Toast.LENGTH_SHORT).show()
-                        onBack()
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(16.dp),
@@ -256,13 +270,13 @@ fun AddTransactionScreen(viewModel: TransactionViewModel, onBack: () -> Unit) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(brush = Brush.horizontalGradient(YellowGradient)),
+                            .background(brush = Brush.horizontalGradient(PurpleGradient)),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Save, contentDescription = null, tint = Black)
+                            Icon(Icons.Default.Save, contentDescription = null, tint = White)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Simpan Transaksi", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Black)
+                            Text("Simpan Transaksi", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = White)
                         }
                     }
                 }

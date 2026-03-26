@@ -21,6 +21,11 @@ val Black = Color(0xFF000000)
 val GreenGradient = listOf(Color(0xFFD4E157), IncomeGreen)
 val RedGradient = listOf(Color(0xFFFFAB91), ExpenseRed)
 
+// Pastel Modern Gradients
+val PastelIncomeGradient = listOf(Color(0xFFE0F7FA), Color(0xFFB2EBF2), Color(0xFF80DEEA)) // Soft Cyan/Blue
+val PastelExpenseGradient = listOf(Color(0xFFFFF1F1), Color(0xFFFFE4E1), Color(0xFFFFC0CB)) // Soft Pink/Rose
+val PastelPurpleGradient = listOf(Color(0xFFF3E5F5), Color(0xFFE1BEE7), Color(0xFFCE93D8)) // Soft Purple
+
 val MainBackgroundGradient = listOf(DarkBgSecondary, DarkBg)
 
 val LoginBackgroundGradient = listOf(Color(0xFF1A237E), Color(0xFF121420), DarkBg) 

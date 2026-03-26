@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,10 +31,20 @@ fun TransactionHistoryScreen(viewModel: TransactionViewModel, onBack: () -> Unit
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Riwayat Transaksi", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+                    title = { 
+                        Text(
+                            "Riwayat Transaksi", 
+                            style = TextStyle(
+                                brush = Brush.horizontalGradient(PurpleGradient),
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                letterSpacing = 0.5.sp
+                            )
+                        ) 
+                    },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = White)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = White)
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
@@ -51,7 +62,7 @@ fun TransactionHistoryScreen(viewModel: TransactionViewModel, onBack: () -> Unit
                 
                 if (transactions.isEmpty()) {
                     item {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                        Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
                             Text("Belum ada transaksi", color = TextGray)
                         }
                     }

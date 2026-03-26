@@ -1,5 +1,7 @@
 package com.example.finrecapp.ui.screens
 
+import android.widget.Toast
+import androidx.biometric.BiometricPrompt
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -25,6 +29,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import com.example.finrecapp.ui.TransactionViewModel
 import com.example.finrecapp.ui.theme.*
 import kotlinx.coroutines.delay
@@ -42,6 +48,30 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    // Biometric Logic
+    val biometricPrompt = remember {
+        val executor = ContextCompat.getMainExecutor(context)
+        BiometricPrompt(context as FragmentActivity, executor, object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                onLoginSuccess()
+            }
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                if (errorCode != BiometricPrompt.ERROR_USER_CANCELED) {
+                    Toast.makeText(context, "Autentikasi Gagal: $errString", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
+    val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle("Login Biometrik")
+        .setSubtitle("Gunakan sidik jari atau wajah Anda")
+        .setNegativeButtonText("Batal")
+        .build()
 
     Box(
         modifier = Modifier
@@ -55,65 +85,70 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo and Title
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(
-                        brush = Brush.verticalGradient(YellowGradient),
-                        shape = RoundedCornerShape(16.dp)
+            // Branding Section
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "cuanlog",
+                    style = TextStyle(
+                        brush = Brush.verticalGradient(PurpleGradient),
+                        fontSize = 72.sp,
+                        fontWeight = FontWeight.Black,
+                        fontFamily = FontFamily.SansSerif,
+                        letterSpacing = (-1.5).sp
                     )
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = android.R.drawable.ic_menu_agenda),
-                    contentDescription = "Logo",
-                    modifier = Modifier.fillMaxSize(),
-                    tint = Black
+                )
+                Text(
+                    text = "MANAGEMENT",
+                    style = TextStyle(
+                        color = White.copy(alpha = 0.4f),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 8.sp
+                    ),
+                    modifier = Modifier.padding(top = 4.dp, start = 8.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("FinBank", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text("Kelola keuangan Anda dengan aman", color = TextGray, fontSize = 14.sp)
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
-            // Container for inputs
+            // Inputs Container
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = CardBg.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(28.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, White.copy(alpha = 0.05f))
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Username", color = TextGray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text("Username", color = White.copy(alpha = 0.6f), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
-                        placeholder = { Text("Masukkan username Anda", color = TextGray.copy(alpha = 0.5f)) },
+                        placeholder = { Text("Username", color = TextGray.copy(alpha = 0.4f)) },
                         modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = TextGray) },
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = PrimaryPurple) },
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = Color.Transparent,
-                            focusedBorderColor = PrimaryYellow,
+                            focusedBorderColor = PrimaryPurple.copy(alpha = 0.4f),
                             unfocusedContainerColor = Color.Black.copy(alpha = 0.2f),
-                            focusedContainerColor = Color.Black.copy(alpha = 0.2f),
-                            cursorColor = PrimaryYellow
+                            focusedContainerColor = Color.Black.copy(alpha = 0.3f),
+                            cursorColor = PrimaryPurple,
+                            unfocusedTextColor = White,
+                            focusedTextColor = White
                         ),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(14.dp)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("Password", color = TextGray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("Password", color = White.copy(alpha = 0.6f), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("••••••••", color = TextGray.copy(alpha = 0.5f)) },
+                        placeholder = { Text("••••••••", color = TextGray.copy(alpha = 0.4f)) },
                         modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TextGray) },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = PrimaryPurple) },
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
@@ -127,73 +162,86 @@ fun LoginScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = Color.Transparent,
-                            focusedBorderColor = PrimaryYellow,
+                            focusedBorderColor = PrimaryPurple.copy(alpha = 0.4f),
                             unfocusedContainerColor = Color.Black.copy(alpha = 0.2f),
-                            focusedContainerColor = Color.Black.copy(alpha = 0.2f),
-                            cursorColor = PrimaryYellow
+                            focusedContainerColor = Color.Black.copy(alpha = 0.3f),
+                            cursorColor = PrimaryPurple,
+                            unfocusedTextColor = White,
+                            focusedTextColor = White
                         ),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(14.dp)
                     )
 
-                    // Lupa Password placed below Password Field
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         "Lupa Password?",
-                        color = PrimaryYellow,
+                        color = PrimaryPurple,
                         fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .align(Alignment.End)
                             .clickable { onNavigateToForgotPassword() }
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                    // Login Button
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                if ((username == "admin" && password == "admin123") || 
-                                    viewModel.loginUser(username, password)) {
-                                    onLoginSuccess()
-                                } else {
-                                    showError = true
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        contentPadding = PaddingValues(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        shape = RoundedCornerShape(12.dp)
+                    // Buttons Row (Login + Biometric)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Box(
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    if ((username == "admin" && password == "admin123") || 
+                                        viewModel.loginUser(username, password)) {
+                                        onLoginSuccess()
+                                    } else {
+                                        showError = true
+                                    }
+                                }
+                            },
                             modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    brush = Brush.horizontalGradient(YellowGradient),
-                                    shape = RoundedCornerShape(12.dp)
-                                ),
-                            contentAlignment = Alignment.Center
+                                .weight(1f)
+                                .height(58.dp),
+                            contentPadding = PaddingValues(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                            shape = RoundedCornerShape(14.dp)
                         ) {
-                            Text("Masuk", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Black)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        brush = Brush.horizontalGradient(PurpleGradient),
+                                        shape = RoundedCornerShape(14.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Masuk", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = White)
+                            }
+                        }
+
+                        // Biometric Button
+                        IconButton(
+                            onClick = { biometricPrompt.authenticate(promptInfo) },
+                            modifier = Modifier
+                                .size(58.dp)
+                                .background(CardBg.copy(alpha = 0.6f), RoundedCornerShape(14.dp))
+                        ) {
+                            Icon(Icons.Default.Fingerprint, contentDescription = "Biometric Login", tint = PrimaryPurple, modifier = Modifier.size(32.dp))
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     // Register Text
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         Text(
                             text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(color = TextGray)) {
-                                    append("Belum punya akun? ")
-                                }
-                                withStyle(style = SpanStyle(color = PrimaryYellow, fontWeight = FontWeight.Bold)) {
-                                    append("Daftar Sekarang")
-                                }
+                                withStyle(style = SpanStyle(color = TextGray)) { append("Belum punya akun? ") }
+                                withStyle(style = SpanStyle(color = PrimaryPurple, fontWeight = FontWeight.ExtraBold)) { append("Daftar Sekarang") }
                             },
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             modifier = Modifier.clickable { onNavigateToRegister() }
                         )
                     }
@@ -201,7 +249,7 @@ fun LoginScreen(
             }
         }
 
-        // Custom "Toast" Snackbar
+        // Custom Error Toast
         AnimatedVisibility(
             visible = showError,
             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
@@ -213,7 +261,8 @@ fun LoginScreen(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = Color(0xFF1C1E2D),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, ExpenseRed.copy(alpha = 0.5f))
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
@@ -230,22 +279,17 @@ fun LoginScreen(
                             Icon(Icons.Default.PriorityHigh, contentDescription = null, tint = White, modifier = Modifier.size(16.dp))
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            "Username atau Password salah",
-                            color = White,
-                            fontSize = 14.sp
-                        )
+                        Text("Username atau Password salah", color = White, fontSize = 14.sp)
                     }
                     Text(
                         "TUTUP",
-                        color = PrimaryYellow,
+                        color = PrimaryPurple,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         modifier = Modifier.clickable { showError = false }
                     )
                 }
             }
-
             LaunchedEffect(showError) {
                 if (showError) {
                     delay(3000)
