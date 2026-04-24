@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,8 +26,8 @@ import androidx.compose.ui.unit.sp
 import com.example.finrecapp.data.TransactionEntity
 import com.example.finrecapp.ui.TransactionViewModel
 import com.example.finrecapp.ui.theme.*
+import com.example.finrecapp.ui.utils.formatRupiah
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,7 +41,8 @@ fun DashboardScreen(
     onNavigateToExport: () -> Unit,
     onNavigateToCategories: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onSwitchMode: () -> Unit
 ) {
     val isDarkMode by viewModel.isDarkMode.collectAsState()
     val transactions by viewModel.allTransactions.collectAsState(initial = emptyList())
@@ -93,17 +93,22 @@ fun DashboardScreen(
             ) {
                 Spacer(modifier = Modifier.height(48.dp))
                 Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                    Text("Financial Menu", style = TextStyle(brush = Brush.horizontalGradient(PurpleGradient), fontSize = 26.sp, fontWeight = FontWeight.ExtraBold))
-                    Text("Kelola Keuangan Lebih Baik", color = TextGray, fontSize = 14.sp)
+                    Text("Financial Hub", style = TextStyle(brush = Brush.horizontalGradient(PurpleGradient), fontSize = 26.sp, fontWeight = FontWeight.ExtraBold))
+                    Text("Kelola Keuangan Pribadi", color = TextGray, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.height(32.dp))
                 
+                Text("MENU UTAMA", modifier = Modifier.padding(horizontal = 24.dp), color = PrimaryPurple, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 DrawerMenuItem(Icons.Default.PieChart, "Analisis Keuangan", textColor, isDarkMode) { scope.launch { drawerState.close() }; onNavigateToAnalysis() }
                 DrawerMenuItem(Icons.Default.Download, "Ekspor Laporan", textColor, isDarkMode) { scope.launch { drawerState.close() }; onNavigateToExport() }
                 DrawerMenuItem(Icons.Default.Category, "Kelola Kategori", textColor, isDarkMode) { scope.launch { drawerState.close() }; onNavigateToCategories() }
-                DrawerMenuItem(Icons.Default.Settings, "Pengaturan Akun", textColor, isDarkMode) { scope.launch { drawerState.close() }; onNavigateToSettings() }
-                
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("MODE APLIKASI", modifier = Modifier.padding(horizontal = 24.dp), color = PrimaryPurple, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                DrawerMenuItem(Icons.Default.SwapHoriz, "Ganti ke Mode Bisnis", textColor, isDarkMode) { scope.launch { drawerState.close() }; onSwitchMode() }
+
                 Spacer(modifier = Modifier.weight(1f))
+                DrawerMenuItem(Icons.Default.Settings, "Pengaturan", textColor, isDarkMode) { scope.launch { drawerState.close() }; onNavigateToSettings() }
                 DrawerMenuItem(Icons.AutoMirrored.Filled.Logout, "Keluar", ExpenseRed, isDarkMode) { scope.launch { drawerState.close() }; showLogoutDialog = true }
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -146,6 +151,7 @@ fun DashboardScreen(
                             StatCard("PEMASUKAN", totalPemasukan, GreenGradient, Icons.Default.ArrowUpward, Modifier.weight(1f))
                             StatCard("PENGELUARAN", totalPengeluaran, RedGradient, Icons.Default.ArrowDownward, Modifier.weight(1f))
                         }
+                        
                         Spacer(modifier = Modifier.height(24.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text("Riwayat Transaksi", color = textColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -280,9 +286,4 @@ fun TransactionItem(transaction: TransactionEntity) {
             }
         }
     }
-}
-
-fun formatRupiah(amount: Long): String {
-    val format = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
-    return format.format(amount).replace("Rp", "Rp ")
 }

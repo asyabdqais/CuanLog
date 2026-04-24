@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.finrecapp.ui.TransactionViewModel
 import com.example.finrecapp.ui.theme.*
+import com.example.finrecapp.ui.utils.formatRupiah
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

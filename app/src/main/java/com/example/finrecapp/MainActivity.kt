@@ -39,7 +39,7 @@ fun AppNavigation(viewModel: TransactionViewModel) {
             LoginScreen(
                 viewModel = viewModel,
                 onLoginSuccess = {
-                    navController.navigate("dashboard") {
+                    navController.navigate("mode_selection") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -49,6 +49,13 @@ fun AppNavigation(viewModel: TransactionViewModel) {
                 onNavigateToForgotPassword = {
                     navController.navigate("forgot_password")
                 }
+            )
+        }
+        composable("mode_selection") {
+            ModeSelectionScreen(
+                viewModel = viewModel,
+                onSelectFinancial = { navController.navigate("dashboard") },
+                onSelectCashier = { navController.navigate("business_dashboard") }
             )
         }
         composable("register") {
@@ -85,6 +92,31 @@ fun AppNavigation(viewModel: TransactionViewModel) {
                     navController.navigate("login") {
                         popUpTo("dashboard") { inclusive = true }
                     }
+                },
+                onSwitchMode = {
+                    navController.navigate("mode_selection") {
+                        popUpTo("dashboard") { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable("business_dashboard") {
+            BusinessDashboardScreen(
+                viewModel = viewModel,
+                onNavigateToInventory = { navController.navigate("inventory") },
+                onNavigateToCashier = { navController.navigate("add_sale") },
+                onNavigateToPurchases = { navController.navigate("add_purchase") },
+                onNavigateToReport = { navController.navigate("business_history") },
+                onNavigateToSuppliers = { navController.navigate("suppliers") },
+                onSwitchMode = {
+                    navController.navigate("mode_selection") {
+                        popUpTo("business_dashboard") { inclusive = true }
+                    }
+                },
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo("business_dashboard") { inclusive = true }
+                    }
                 }
             )
         }
@@ -111,6 +143,28 @@ fun AppNavigation(viewModel: TransactionViewModel) {
         }
         composable("change_password") {
             ChangePasswordScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+        }
+        // Business Detail Screens
+        composable("inventory") {
+            InventoryScreen(viewModel = viewModel, onAddProduct = { navController.navigate("add_product") }, onBack = { navController.popBackStack() })
+        }
+        composable("add_purchase") {
+            AddPurchaseScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+        }
+        composable("add_sale") {
+            AddSaleScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+        }
+        composable("business_history") {
+            BusinessHistoryScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+        }
+        composable("suppliers") {
+            SupplierScreen(viewModel = viewModel, onAddSupplier = { navController.navigate("add_supplier") }, onBack = { navController.popBackStack() })
+        }
+        composable("add_supplier") {
+            AddSupplierScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+        }
+        composable("add_product") {
+            AddProductScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
     }
 }

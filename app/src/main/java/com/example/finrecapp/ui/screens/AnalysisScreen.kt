@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.finrecapp.ui.TransactionViewModel
 import com.example.finrecapp.ui.theme.*
+import com.example.finrecapp.ui.utils.formatRupiah
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,7 +130,7 @@ fun FinancialOverviewCard(income: Long, expense: Long, isDarkMode: Boolean, card
             Spacer(modifier = Modifier.height(24.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 FinancialMiniStat("Pemasukan", income, IncomeGreen, textColor)
-                VerticalDivider(modifier = Modifier.height(40.dp).width(1.dp), color = textColor.copy(alpha = 0.1f))
+                HorizontalDivider(modifier = Modifier.height(40.dp).width(1.dp), color = textColor.copy(alpha = 0.1f))
                 FinancialMiniStat("Pengeluaran", expense, ExpenseRed, textColor)
             }
         }
